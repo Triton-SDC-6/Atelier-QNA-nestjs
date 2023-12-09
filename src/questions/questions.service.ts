@@ -4,8 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from './question.entity';
 import { Answer } from 'src/answers/answer.entity';
 import { AnswerPhoto } from 'src/answers/answer-photo.entity';
-import { QuestionBodyDto } from './dtos/create-question.dto';
-import { AnswerBodyDto } from './dtos/create-answer.dto';
+import { QuestionBodyDto } from './dtos/question-body.dto';
+import { AnswerBodyDto } from './dtos/answer-body.dto';
 
 @Injectable()
 export class QuestionsService {
@@ -39,7 +39,13 @@ export class QuestionsService {
     page: number = 1,
     count: number = 5,
   ) {
-    return `Should return page ${page} of ${count} answers related to the question_id: ${question_id} with photos`; // FIXME:
+    const answers = await this.answerRepo.find({
+      where: { question: { id: question_id } },
+      relations: ['photos'],
+      take: count,
+      skip: (page - 1) * count,
+    });
+    return answers;
   }
 
   async createOneAnswer(answerBody: AnswerBodyDto, question_id: number) {

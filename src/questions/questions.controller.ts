@@ -10,8 +10,8 @@ import {
   DefaultValuePipe,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
-import { QuestionBodyDto } from './dtos/create-question.dto';
-import { AnswerBodyDto } from './dtos/create-answer.dto';
+import { QuestionBodyDto } from './dtos/question-body.dto';
+import { AnswerBodyDto } from './dtos/answer-body.dto';
 
 @Controller('questions')
 export class QuestionsController {
