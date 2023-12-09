@@ -48,7 +48,7 @@ export class QuestionsService {
     count: number = 5,
   ) {
     const answers = await this.answerRepo.find({
-      where: { question: { id: question_id } },
+      where: { question: { id: question_id }, reported: false },
       relations: ['photos'],
       take: count,
       skip: (page - 1) * count,
