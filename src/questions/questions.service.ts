@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from './question.entity';
@@ -30,8 +30,16 @@ export class QuestionsService {
   }
 
   async createOneQuestion(questionBody: QuestionBodyDto) {
-    // FIXME: create Question
-    return questionBody;
+    const bodyToWrite = new Question();
+
+    bodyToWrite.product_id = questionBody.product_id;
+    bodyToWrite.body = questionBody.body;
+    bodyToWrite.date_written = new Date();
+    bodyToWrite.asker_name = questionBody.name;
+    bodyToWrite.asker_email = questionBody.email;
+
+    const newQuestion = await this.questionRepo.create(bodyToWrite);
+    return this.questionRepo.save(newQuestion);
   }
 
   async getAllAnswersOfQuestion(
@@ -49,17 +57,42 @@ export class QuestionsService {
   }
 
   async createOneAnswer(answerBody: AnswerBodyDto, question_id: number) {
-    return {
-      ...answerBody,
-      message: `Should create a answer to  question_id: ${question_id} with photos`,
-    };
+    const relatedQuestion = await this.questionRepo.findOne({
+      where: { id: question_id },
+    });
+    if (!relatedQuestion) {
+      throw new NotFoundException('question_id do not exist');
+    }
+    const answerToWrite = new Answer();
+    answerToWrite.question = relatedQuestion;
+    answerToWrite.body = answerBody.body;
+    answerToWrite.date_written = new Date();
+    answerToWrite.answerer_name = answerBody.name;
+    answerToWrite.answerer_email = answerBody.email;
+
+    const newAnswer = await this.answerRepo.create(answerToWrite);
+    const savedAnswer = await this.answerRepo.save(newAnswer);
+    let savedPhotos: AnswerPhoto[];
+
+    if (answerBody.photos && answerBody.photos.length > 0) {
+      const photosToSave = answerBody.photos.map((photoUrl) => {
+        const photoToCreate = new AnswerPhoto();
+        photoToCreate.url = photoUrl;
+        photoToCreate.answer = savedAnswer;
+        return this.answerPhotoRepo.create(photoToCreate);
+      });
+      savedPhotos = await this.answerPhotoRepo.save(photosToSave);
+    }
+    return { savedAnswer, savedPhotos };
   }
 
   async markQuestionHelpful(question_id: number) {
-    return `Mark question_id: ${question_id} as helpful`; // FIXME:
+    await this.questionRepo.increment({ id: question_id }, 'helpful', 1);
+    return this.questionRepo.findOneBy({ id: question_id });
   }
 
   async reportQuestion(question_id: number) {
-    return `Report question_id: ${question_id}`; // FIXME:
+    await this.questionRepo.update(question_id, { reported: true });
+    return this.questionRepo.findOneBy({ id: question_id });
   }
 }
