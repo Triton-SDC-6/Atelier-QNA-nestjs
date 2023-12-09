@@ -1,11 +1,32 @@
 import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Question } from './question.entity';
+import { Answer } from 'src/answers/answer.entity';
+import { AnswerPhoto } from 'src/answers/answer-photo.entity';
 import { QuestionBodyDto } from './dtos/create-question.dto';
 import { AnswerBodyDto } from './dtos/create-answer.dto';
 
 @Injectable()
 export class QuestionsService {
+  constructor(
+    @InjectRepository(Question)
+    private readonly questionRepo: Repository<Question>,
+    @InjectRepository(Answer)
+    private readonly answerRepo: Repository<Answer>,
+    @InjectRepository(AnswerPhoto)
+    private readonly answerPhotoRepo: Repository<AnswerPhoto>,
+  ) {}
+
   async getAll(product_id: number, page: number = 1, count: number = 5) {
-    return `Should return ${count} questions on page ${page} related to the product_id: ${product_id} with answers and photos`; // FIXME:
+    const questions = await this.questionRepo.find({
+      where: { product_id, reported: false },
+      relations: ['answers', 'answers.photos'],
+      take: count,
+      skip: (page - 1) * count,
+    });
+
+    return questions;
   }
 
   async createOneQuestion(questionBody: QuestionBodyDto) {

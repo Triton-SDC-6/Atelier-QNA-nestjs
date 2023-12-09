@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { Question } from 'src/questions/question.entity';
 import { AnswerPhoto } from './answer-photo.entity';
@@ -14,6 +15,7 @@ export class Answer {
   id: number;
 
   @ManyToOne(() => Question, (question) => question.answers)
+  @JoinColumn({ name: 'question_id' })
   question: Question;
 
   @Column()
