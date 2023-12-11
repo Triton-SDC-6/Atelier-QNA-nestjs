@@ -6,7 +6,7 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { Question } from 'src/questions/question.entity';
+import { Question } from '../questions/question.entity';
 import { AnswerPhoto } from './answer-photo.entity';
 
 @Entity('answers')

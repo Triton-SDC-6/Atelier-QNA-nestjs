@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from './question.entity';
-import { Answer } from 'src/answers/answer.entity';
-import { AnswerPhoto } from 'src/answers/answer-photo.entity';
+import { Answer } from '../answers/answer.entity';
+import { AnswerPhoto } from '../answers/answer-photo.entity';
 import { QuestionBodyDto } from './dtos/question-body.dto';
 import { AnswerBodyDto } from './dtos/answer-body.dto';
 
