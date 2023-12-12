@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from './question.entity';
@@ -16,6 +18,7 @@ export class QuestionsService {
     private readonly answerRepo: Repository<Answer>,
     @InjectRepository(AnswerPhoto)
     private readonly answerPhotoRepo: Repository<AnswerPhoto>,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   async getAll(
@@ -24,6 +27,10 @@ export class QuestionsService {
     count: number = 5,
     show_all: boolean = false,
   ) {
+    const cachedProduct = await this.cacheManager.get(product_id.toString());
+    if (cachedProduct) {
+      return cachedProduct;
+    }
     const questions = await this.questionRepo.find({
       where: { product_id, reported: false },
       take: count,
@@ -41,7 +48,7 @@ export class QuestionsService {
       const answers = await this.answerRepo.find(queryObj);
       question.answers = answers;
     }
-
+    await this.cacheManager.set(product_id.toString(), questions);
     return questions;
   }
 
