@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  ParseBoolPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
@@ -21,8 +22,10 @@ export class QuestionsController {
     @Query('product_id', ParseIntPipe) product_id: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('count', new DefaultValuePipe(5), ParseIntPipe) count: number,
+    @Query('show_all', new DefaultValuePipe(false), ParseBoolPipe)
+    show_all: boolean,
   ) {
-    return this.questionsService.getAll(product_id, page, count);
+    return this.questionsService.getAll(product_id, page, count, show_all);
   }
   @Post()
   async createOneQuestion(@Body() questionBody: QuestionBodyDto) {

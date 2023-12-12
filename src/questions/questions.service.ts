@@ -18,18 +18,27 @@ export class QuestionsService {
     private readonly answerPhotoRepo: Repository<AnswerPhoto>,
   ) {}
 
-  async getAll(product_id: number, page: number = 1, count: number = 5) {
+  async getAll(
+    product_id: number,
+    page: number = 1,
+    count: number = 5,
+    show_all: boolean = false,
+  ) {
     const questions = await this.questionRepo.find({
       where: { product_id, reported: false },
       take: count,
       skip: (page - 1) * count,
     });
+
     for (const question of questions) {
-      const answers = await this.answerRepo.find({
+      const queryObj: any = {
         where: { question: { id: question.id }, reported: false },
         relations: ['photos'],
-        take: 5, // Limit to 5 answers per question
-      });
+      };
+      if (!show_all) {
+        queryObj.take = 5;
+      }
+      const answers = await this.answerRepo.find(queryObj);
       question.answers = answers;
     }
 
