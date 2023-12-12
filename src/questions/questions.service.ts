@@ -21,10 +21,17 @@ export class QuestionsService {
   async getAll(product_id: number, page: number = 1, count: number = 5) {
     const questions = await this.questionRepo.find({
       where: { product_id, reported: false },
-      relations: ['answers', 'answers.photos'],
       take: count,
       skip: (page - 1) * count,
     });
+    for (const question of questions) {
+      const answers = await this.answerRepo.find({
+        where: { question: { id: question.id }, reported: false },
+        relations: ['photos'],
+        take: 5, // Limit to 5 answers per question
+      });
+      question.answers = answers;
+    }
 
     return questions;
   }
