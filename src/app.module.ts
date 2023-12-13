@@ -15,9 +15,10 @@ import { AnswerPhoto } from './answers/answer-photo.entity';
     AnswersModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: '18.222.157.34',
       port: 5432,
       username: 'lance',
+      password: '',
       database: 'qna',
       entities: [Question, Answer, AnswerPhoto],
       synchronize: false,
