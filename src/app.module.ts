@@ -1,5 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { QuestionsModule } from './questions/questions.module';
@@ -13,6 +15,9 @@ import { AnswerPhoto } from './answers/answer-photo.entity';
   imports: [
     QuestionsModule,
     AnswersModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'), // Set the directory where the static files are located.
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: '18.222.157.34',
